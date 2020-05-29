@@ -9,4 +9,7 @@
 - Store students in a text file
 - Use Postman to test your API, import this file to Postman: ```stuffs\Students.postman_collection.json```
 
+Express need some extra modules to read request body.  
+- For [JSON body](https://www.npmjs.com/package/body-parser)
+
 # Contact Mentor for any problem you may have
