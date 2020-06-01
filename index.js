@@ -2,7 +2,8 @@ const express = require('express')
 
 const PORT = 8080
 const server = express()
-
+const bodyParser = require('body-parser')
+const jsonParser = bodyParser.json()
 const students = [
   { _id: 1, name: 'Student #1' },
   { _id: 2, name: 'Student #2' },
@@ -10,7 +11,15 @@ const students = [
   { _id: 4, name: 'Student #4' },
   { _id: 5, name: 'Student #5' },
 ]
-
+server.post('/student/', jsonParser, (req, res) => {
+  const name = req.body.name
+  const student = {name: name}
+  students.push(student)
+  res.send(students)
+})
+server.get('/',(req,res) =>{
+  res.send("testing")
+})
 server.get('/student', (req, res) => {
   res.send(students)
 })
