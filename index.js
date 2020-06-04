@@ -3,36 +3,66 @@ const PORT = 8080
 const server = express()
 const cors = require('cors')
 const bodyParser = require('body-parser')
-const fse = require('fs-extra')
+const fs = require('fs').promises
+const path = require('path')
 
+const studentData = fs.readFile(path.join(__dirname, 'student_data.txt'), {encoding: 'utf-8'}, (error, data) => {
+  if (error) throw error;
+  return data.json();
+})
 const jsonParser = bodyParser.json()
-const students = [
-  { _id: 1, name: 'Student #1' },
-  { _id: 2, name: 'Student #2' },
-  { _id: 3, name: 'Student #3' },
-  { _id: 4, name: 'Student #4' },
-  { _id: 5, name: 'Student #5' },
-]
+let students
+// const students = [
+//   { _id: 1, name: 'Student #1' },
+//   { _id: 2, name: 'Student #2' },
+//   { _id: 3, name: 'Student #3' },
+//   { _id: 4, name: 'Student #4' },
+//   { _id: 5, name: 'Student #5' },
+// ]
+
+// using studentCounter to set _id is currently creating conflicts
+// let studentCounter
+async function getStudentData(){
+  const result = await studentData.then((data)=>JSON.parse(data))
+  console.log(result)
+  students = result
+  // studentCounter = students.length + 1
+  return
+}
+
 server.use(cors())
 server.use(jsonParser)
+getStudentData()
 
 server.post('/student/', (req, res) => {
+  getStudentData()
   const student = req.body
+  // student._id = studentCounter
   console.log(req.body)
   students.push(student)
   res.send(students)
-  fse.writeFile('student_data.txt',students,(e)=>{
+  const dataToWrite = JSON.stringify(students)
+
+  fs.writeFile('student_data.txt',dataToWrite,(e)=>{
     if (e) throw e
     return
   }).catch(console.log)
 })
 
 server.delete('/student/:_id', (req, res) =>{
+  getStudentData()
   const _id = Number(req.params._id)
   const student = students.find(student => student._id === _id)
   if (student) {
     const index = students.indexOf(student)
     students.splice(index,1)
+    const dataToWrite = JSON.stringify(students)
+
+    fs.writeFile('student_data.txt',dataToWrite,(e)=>{
+      if (e) throw e
+      return
+    }).catch(console.log)
+
     res.send(students)
     return
   }
@@ -40,26 +70,34 @@ server.delete('/student/:_id', (req, res) =>{
 })
 
 server.put('/student/:_id', (req, res) =>{
+  getStudentData()
   const _id = Number(req.params._id)
   const student = students.find(student => student._id === _id)
   if (student) {
     student.name = req.body.name
+    const dataToWrite = JSON.stringify(students)
+
+    fs.writeFile('student_data.txt',dataToWrite,(e)=>{
+      if (e) throw e
+      return
+    }).catch(console.log)
+
     res.send(students)
     return
   }
   res.sendStatus(404)
 })
 
-server.get('/',(req,res) =>{
-  res.send("testing")
-})
 server.get('/student', (req, res) => {
+  getStudentData()
   res.send(students)
 })
-server.get('/student/:_id', (req, res) => {
-  const _id = Number(req.params._id)
 
+server.get('/student/:_id', (req, res) => {
+  getStudentData()
+  const _id = Number(req.params._id)
   const student = students.find(student => student._id === _id)
+
   if (student) {
     res.send(student)
     return
