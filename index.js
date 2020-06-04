@@ -12,15 +12,9 @@ const studentData = fs.readFile(path.join(__dirname, 'student_data.txt'), {encod
 })
 const jsonParser = bodyParser.json()
 let students
-// const students = [
-//   { _id: 1, name: 'Student #1' },
-//   { _id: 2, name: 'Student #2' },
-//   { _id: 3, name: 'Student #3' },
-//   { _id: 4, name: 'Student #4' },
-//   { _id: 5, name: 'Student #5' },
-// ]
 
 // using studentCounter to set _id is currently creating conflicts
+
 // let studentCounter
 async function getStudentData(){
   const result = await studentData.then((data)=>JSON.parse(data))
